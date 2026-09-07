@@ -1,0 +1,77 @@
+Crie um código JavaScript para ser usado em um node "Code" do n8n.
+
+O node receberá vários itens de entrada através de:
+
+$input.all()
+
+Cada item terá uma estrutura semelhante a esta:
+
+{
+   "perfil": "Conservador",
+   "mensagem": "Texto da recomendação...",
+   "html": "<!DOCTYPE html>...",
+   "investimentos": [
+      {
+         "perfil": "Conservador",
+         "produto": "Poupança",
+         "minimo": 100,
+         "rentabilidade": "6.2%"
+      }
+   ]
+}
+
+Podem existir vários itens, por exemplo:
+
+- Conservador
+- Moderado
+- Arrojado
+
+O código deve:
+
+1. Ler todos os itens com:
+
+const items = $input.all();
+
+2. Percorrer todos os itens usando map().
+
+3. Para cada item, acessar os dados através de:
+
+const dados = item.json;
+
+4. Retornar UM ITEM do n8n para cada perfil recebido.
+
+5. Cada item de saída deve possuir esta estrutura:
+
+{
+   json: {
+      perfil: dados.perfil,
+      mensagem_base: dados.mensagem,
+      html: dados.html,
+      investimentos: dados.investimentos,
+      copy_rules: {
+         idioma: "pt-BR",
+         tom: "amigável e profissional",
+         tamanho: "curto (4-6 linhas)",
+         evitar: [
+            "promessas de ganho",
+            "garantias",
+            "linguagem agressiva"
+         ]
+      }
+   }
+}
+
+6. Caso algum campo não exista, utilizar valores padrão:
+
+perfil: ""
+mensagem_base: ""
+html: ""
+investimentos: []
+
+7. Não utilizar $json.resultados.
+
+8. Não utilizar parseBRL(), saldo, email, nome, recomendacao ou motivo, pois esses campos não fazem parte da entrada atual.
+
+9. O código deve funcionar diretamente no Code node do n8n configurado para executar uma vez para todos os itens.
+
+10. Retorne somente o código JavaScript completo, sem explicações adicionais.
