@@ -1,0 +1,32 @@
+Atue como um desenvolvedor especialista em JavaScript, n8n e processamento de arquivos CSV.
+
+Preciso de um código JavaScript para ser executado em um Code node do n8n, no modo "Run Once for All Items".
+
+O fluxo recebe dados de um nó HTTP Request. Esses dados podem estar armazenados em uma propriedade chamada "data", em uma propriedade chamada "body" ou podem ser o próprio objeto recebido.
+
+Crie um código que execute as seguintes etapas:
+
+- Obtenha o conteúdo recebido verificando, nesta ordem, as propriedades "data" e "body"; caso nenhuma exista, utilize o próprio objeto recebido.
+- Verifique se o conteúdo obtido já é um texto.
+- Se não for texto, converta-o para uma string JSON.
+- Divida o conteúdo em linhas, aceitando arquivos com quebra de linha LF ou CRLF.
+- Remova espaços desnecessários no início e no final das linhas.
+- Ignore linhas vazias.
+- Considere a primeira linha como o cabeçalho do CSV.
+- Separe o cabeçalho usando vírgulas.
+- Remova os espaços extras de cada nome de coluna.
+- Percorra todas as linhas restantes.
+- Separe os valores de cada linha por vírgulas.
+- Remova os espaços extras dos valores.
+- Crie um objeto para cada registro.
+- Use os nomes do cabeçalho como propriedades dos objetos.
+- Relacione cada valor à sua respectiva coluna.
+- Quando uma coluna não tiver valor, utilize uma string vazia.
+- Identifique uma propriedade chamada "minimo" e converta seu conteúdo para número.
+- Antes da conversão, remova símbolos, letras e demais caracteres que não sejam dígitos.
+- Quando "minimo" estiver vazio, inválido ou não existir, atribua o valor numérico 0.
+- Armazene todos os objetos em um array chamado "investimentos".
+- Retorne o resultado no formato aceito pelo n8n, contendo um array com um objeto "json".
+- Dentro de "json", coloque a propriedade "investimentos".
+
+Inclua comentários explicativos no código, não utilize bibliotecas externas e responda somente com o código JavaScript em um bloco de código.
