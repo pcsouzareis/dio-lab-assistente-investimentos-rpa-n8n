@@ -1,239 +1,157 @@
-Atue como um desenvolvedor especialista em JavaScript, n8n, processamento de dados JSON e geração de HTML.
+Atue como um desenvolvedor especialista em JavaScript e n8n.
 
-Crie um código JavaScript completo para ser executado em um Code node do n8n, configurado no modo “Run Once for All Items”.
+Crie um código JavaScript completo para ser executado em um Code node do n8n, configurado no modo “Run Once for All Items”. Nesse modo, utilize `$input.all()` para obter os itens recebidos.
 
-O código deverá processar dados de clientes recebidos de um nó anterior do n8n e gerar, para cada cliente, uma mensagem personalizada de recomendação de investimentos em formato de texto simples e HTML.
-
-Siga rigorosamente os requisitos abaixo.
-
-## Entrada dos dados
-
-O código deve:
-
-1. Obter todos os itens recebidos usando `$input.all()`.
-2. Para cada item, acessar os dados por meio de `item.json`.
-3. Considerar que os dados podem estar:
-   - Dentro de `item.json.data`;
-   - Dentro de `item.json.body`;
-   - Ou diretamente dentro de `item.json`.
-4. Criar uma variável com os dados recebidos.
-5. Localizar os clientes considerando estes formatos:
-   - Um array recebido diretamente;
-   - Um array dentro da propriedade `clientes`;
-   - Um único objeto contendo as propriedades `nome`, `email` ou `perfil`.
-6. Quando houver um único objeto de cliente, transformá-lo em um array com um cliente.
-7. Processar todos os clientes encontrados.
-8. Usar `flatMap()` ou outra estratégia equivalente para gerar uma saída individual para cada cliente.
-
-## Dados de cada cliente
-
-Considere que cada cliente pode conter:
+A entrada recebida pelo Code node possui esta estrutura geral:
 
 ```json
-{
-  "nome": "Ana Silva",
-  "email": "ana@email.com",
-  "saldo": "R$ 12.500,00",
-  "perfil": "Conservador"
-}
+[
+  {
+    "headers": {},
+    "params": {},
+    "query": {},
+    "body": {
+      "moeda": 1
+    },
+    "webhookUrl": "[https://exemplo.com/webhook](https://exemplo.com/webhook)",
+    "executionMode": "test",
+    "investimentos": [
+      {
+        "perfil": "Conservador",
+        "produto": "Poupança",
+        "minimo": 100,
+        "rentabilidade": "6.2%"
+      },
+      {
+        "perfil": "Conservador",
+        "produto": "CDB Liquidez Diária",
+        "minimo": 1000,
+        "rentabilidade": "12.5%"
+      },
+      {
+        "perfil": "Conservador",
+        "produto": "Tesouro Selic",
+        "minimo": 500,
+        "rentabilidade": "13.0%"
+      },
+      {
+        "perfil": "Moderado",
+        "produto": "CDB Prefixado",
+        "minimo": 1000,
+        "rentabilidade": "14.0%"
+      },
+      {
+        "perfil": "Moderado",
+        "produto": "Fundo Multimercado",
+        "minimo": 5000,
+        "rentabilidade": "16.0%"
+      },
+      {
+        "perfil": "Moderado",
+        "produto": "Tesouro IPCA+",
+        "minimo": 1000,
+        "rentabilidade": "IPCA+6.0%"
+      },
+      {
+        "perfil": "Arrojado",
+        "produto": "Ações ETF",
+        "minimo": 500,
+        "rentabilidade": "Variável"
+      },
+      {
+        "perfil": "Arrojado",
+        "produto": "Fundo de Ações",
+        "minimo": 10000,
+        "rentabilidade": "Variável"
+      },
+      {
+        "perfil": "Arrojado",
+        "produto": "Criptomoedas",
+        "minimo": 100,
+        "rentabilidade": "Variável"
+      }
+    ]
+  }
+]
 ```
+
+O código deve considerar que:
+
+1. Os dados de investimento estão diretamente em `item.json.investimentos`.
+2. A propriedade `body` contém apenas dados adicionais e não deve ser usada para localizar os investimentos.
+3. Não existem clientes nessa entrada.
+4. Portanto, o código deve gerar uma mensagem geral de recomendação para cada perfil encontrado nos investimentos.
+5. Não deve retornar a mensagem “Nenhum cliente foi encontrado”.
+6. Deve retornar uma mensagem de investimento para os perfis Conservador, Moderado e Arrojado, quando existirem na entrada.
+
+## Requisitos do código
+
+Crie uma função chamada `normalizarPerfil` que:
+
+- Converta o perfil para string;
+- Remova acentos;
+- Remova espaços no início e no final;
+- Converta o texto para letras minúsculas.
+
+Crie uma função chamada `formatarMoeda` que:
+
+- Receba um valor numérico;
+- Formate o valor no padrão brasileiro;
+- Utilize Real brasileiro como moeda;
+- Exiba valores como `R$ 1.000,00`.
 
 O código deve:
 
-1. Usar `"Cliente"` como nome padrão quando o nome não existir.
-2. Usar uma string vazia quando o e-mail não existir.
-3. Converter o saldo para número.
-4. Aceitar saldo no formato brasileiro, como:
-   - `"R$ 12.500,00"`
-   - `"R$ 3.200,00"`
-   - `"28900,00"`
-5. Remover símbolos de moeda e espaços.
-6. Remover os pontos usados como separadores de milhar.
-7. Substituir a vírgula decimal por ponto.
-8. Retornar 0 quando o saldo estiver vazio, inválido ou ausente.
-9. Criar uma função chamada `converterSaldo`.
-10. Criar uma função chamada `formatarMoeda` para exibir os valores no padrão brasileiro usando `Intl.NumberFormat` ou `toLocaleString`, com moeda BRL.
-
-## Normalização do perfil
-
-Crie uma função chamada `normalizarPerfil`.
-
-Essa função deve:
-
-1. Converter o perfil para string.
-2. Remover acentos usando normalização Unicode.
-3. Remover espaços no início e no final.
-4. Converter o texto para letras minúsculas.
-
-O código deve reconhecer os seguintes perfis:
-
-- Conservador;
-- Moderado;
-- Arrojado.
-
-## Descrição dos perfis
-
-Crie um objeto chamado `descricaoPerfil` com os seguintes textos:
-
-- Conservador: informa que o perfil prioriza segurança, liquidez e preservação do patrimônio, aceitando menor exposição a oscilações.
-- Moderado: informa que o perfil busca equilibrar segurança, liquidez e rentabilidade, aceitando oscilações moderadas.
-- Arrojado: informa que o perfil aceita maior volatilidade e possíveis perdas no curto prazo em busca de melhores oportunidades de rentabilidade.
-
-Caso o perfil não seja reconhecido, utilizar uma mensagem informando que ele não foi identificado ou não está entre os perfis disponíveis.
-
-## Recomendações por perfil
-
-Crie um objeto chamado `recomendacoesPorPerfil`.
-
-Para cada perfil, inclua um array de objetos com as propriedades:
-
-- `produto`;
-- `risco`;
-- `objetivo`;
-- `observacao`.
-
-Use as seguintes recomendações:
-
-### Perfil conservador
-
-Inclua:
-
-1. Poupança:
-   - Risco: Baixo;
-   - Objetivo: Reserva de emergência e alta liquidez;
-   - Observação: Possui facilidade de resgate, mas pode apresentar menor rentabilidade.
-
-2. CDB com Liquidez Diária:
-   - Risco: Baixo;
-   - Objetivo: Reserva de emergência e preservação do capital;
-   - Observação: Verifique a liquidez, a instituição emissora e a cobertura do FGC.
-
-3. Tesouro Selic:
-   - Risco: Baixo;
-   - Objetivo: Reserva financeira e objetivos de curto ou médio prazo;
-   - Observação: Está sujeito à variação de preço em resgates antecipados.
-
-### Perfil moderado
-
-Inclua:
-
-1. CDB Prefixado:
-   - Risco: Moderado;
-   - Objetivo: Objetivos de médio prazo;
-   - Observação: A rentabilidade contratada depende da manutenção do investimento até o vencimento.
-
-2. Fundo Multimercado:
-   - Risco: Moderado;
-   - Objetivo: Diversificação da carteira;
-   - Observação: Verifique a política de investimento, as taxas e o histórico do fundo.
-
-3. Tesouro IPCA+:
-   - Risco: Moderado;
-   - Objetivo: Preservação do poder de compra no longo prazo;
-   - Observação: Resgates antes do vencimento podem sofrer variações de mercado.
-
-### Perfil arrojado
-
-Inclua:
-
-1. Ações e ETFs:
-   - Risco: Alto;
-   - Objetivo: Crescimento patrimonial no longo prazo;
-   - Observação: Podem apresentar oscilações e perdas significativas.
-
-2. Fundo de Ações:
-   - Risco: Alto;
-   - Objetivo: Exposição diversificada ao mercado de ações;
-   - Observação: Analise a estratégia, as taxas e o nível de risco do fundo.
-
-3. Criptomoedas:
-   - Risco: Muito alto;
-   - Objetivo: Exposição a ativos digitais;
-   - Observação: Apresentam elevada volatilidade e riscos de perda parcial ou total.
-
-## Mensagem em texto simples
-
-Para cada cliente, gere uma variável chamada `mensagem`.
-
-A mensagem deve:
-
-1. Cumprimentar o cliente pelo nome.
-2. Informar o perfil identificado.
-3. Explicar brevemente o significado do perfil.
-4. Informar o saldo formatado em reais.
-5. Informar o e-mail do cliente.
-6. Listar os produtos recomendados para avaliação.
-7. Exibir, para cada produto:
-   - Nome;
-   - Objetivo;
-   - Observação.
-8. Utilizar uma recomendação padrão quando o perfil não for reconhecido.
-9. Informar que a mensagem é meramente informativa e educacional.
-10. Informar que a mensagem não constitui recomendação definitiva de investimento.
-11. Orientar o cliente a considerar objetivos, prazo, liquidez, situação financeira, custos e riscos.
-12. Informar que a adequação deve ser validada por uma análise de suitability atualizada junto à instituição financeira responsável.
-
-## Template HTML
-
-Para cada cliente, gere uma variável chamada `html`.
-
-O HTML deve:
-
-1. Utilizar `<!DOCTYPE html>`.
-2. Definir o idioma como `pt-BR`.
-3. Incluir a meta charset UTF-8.
-4. Incluir uma meta viewport responsiva.
-5. Ter o título “Recomendação de Investimento”.
-6. Criar uma página visualmente organizada.
-7. Utilizar CSS interno dentro da tag `<style>`.
-8. Criar um container centralizado com largura máxima de aproximadamente 760px.
-9. Utilizar fundo geral em tom claro.
-10. Utilizar um cartão branco com bordas arredondadas e sombra.
-11. Exibir o nome do cliente.
-12. Exibir e-mail, saldo formatado e perfil.
-13. Criar uma seção destacada para o perfil do cliente.
-14. Exibir as recomendações em uma lista HTML.
-15. Exibir o nome do produto, nível de risco, objetivo e observação.
-16. Criar uma seção de alerta visual para os avisos legais e educacionais.
-17. Incluir um rodapé informando que a mensagem foi gerada automaticamente.
-18. Inserir os dados dinâmicos do cliente usando template literals.
-19. Usar uma mensagem específica caso não existam recomendações para o perfil.
-
-## Formato de saída
-
-Para cada cliente, retorne um item no formato:
+1. Obter todos os itens com `$input.all()`.
+2. Obter o primeiro item recebido.
+3. Ler a lista em `entrada.investimentos`.
+4. Garantir que a lista seja um array.
+5. Agrupar os investimentos por perfil.
+6. Usar o perfil normalizado como chave de agrupamento.
+7. Criar descrições para os perfis:
+   - Conservador: prioriza segurança, liquidez e preservação do patrimônio, aceitando menor exposição a oscilações;
+   - Moderado: busca equilibrar segurança, liquidez e rentabilidade, aceitando oscilações moderadas;
+   - Arrojado: aceita maior volatilidade em busca de melhores possibilidades de rentabilidade.
+8. Gerar uma saída individual para cada perfil encontrado.
+9. Criar uma mensagem em texto simples para cada perfil.
+10. Criar uma versão HTML da mensagem para cada perfil.
+11. Na mensagem, listar:
+    - Nome do produto;
+    - Investimento mínimo;
+    - Rentabilidade informada.
+12. Criar um aviso informando que o conteúdo é apenas educacional e informativo.
+13. Informar que o conteúdo não constitui recomendação definitiva de investimento.
+14. Orientar o leitor a avaliar objetivos, prazo, liquidez, situação financeira, custos e riscos.
+15. Informar que a adequação deve ser validada por uma análise de suitability.
+16. Criar um HTML com:
+    - `<!DOCTYPE html>`;
+    - idioma `pt-BR`;
+    - meta charset UTF-8;
+    - meta viewport;
+    - título “Recomendação de Investimentos”;
+    - CSS interno;
+    - container centralizado;
+    - seção destacada para o perfil;
+    - lista de produtos;
+    - seção visual de alerta;
+    - rodapé informando que a mensagem foi gerada automaticamente.
+17. Utilizar template literals para inserir os dados dinamicamente.
+18. Caso não existam investimentos, retornar um único item com uma mensagem informando que nenhum investimento foi encontrado.
+19. Retornar o resultado no formato compatível com o n8n:
 
 ```javascript
-{
-  json: {
-    nome,
-    email,
-    saldo,
-    saldoFormatado,
-    perfil,
-    mensagem,
-    html,
-    recomendacoes
+[
+  {
+    json: {
+      perfil,
+      mensagem,
+      html,
+      investimentos
+    }
   }
-}
+]
 ```
 
-O resultado final deve ser um array de objetos compatível com o n8n.
-
-Caso nenhum cliente seja encontrado, retorne um único item contendo:
-
-```javascript
-{
-  json: {
-    mensagem: "Nenhum cliente foi encontrado nos dados recebidos.",
-    html: "<p>Nenhum cliente foi encontrado nos dados recebidos.</p>",
-    recomendacoes: []
-  }
-}
-```
-
-Inclua comentários explicativos no código.
-
-Não utilize bibliotecas externas.
-
-Responda somente com o código JavaScript completo, dentro de um bloco de código.
+20. Inclua comentários explicativos no código.
+21. Não utilize bibliotecas externas.
+22. Responda somente com o código JavaScript completo dentro de um bloco de código.
